@@ -1,0 +1,6 @@
+$ tsx --tsconfig tsconfig.node.json scripts/watch.ts -- --network testnet --every 600 --minutes 120 --log docs/field-note/runs/run4-watch.log
+2026-11-10T14:10:51Z  testnet: two-clocks CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP, signer GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC (STELLAR_SECRET)
+2026-11-10T14:10:51Z  assets xlm,btc,eth,link,usdt,usdc,eurc,xaum,flhy,uspc, every 600 s for 120 min, heartbeat 86355 s
+2026-11-10T14:10:51Z    https://stellar.expert/explorer/testnet/contract/CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP
+2026-11-10T14:10:51Z  baseline: oldest push flhy age 23 h 40 min (heartbeat in 18 min 38 s)
+2026-11-10T14:11:16Z  round 1  stored 1  xaum -10.2 bps (round 4289, age 1 min 09 s of 23 h 59 min)  tx dcc19cf6...  ledger 5659245  fee 0.0034798 XLM  latency 16.3 s
