@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Demo footage for the DR-4 Pyth Pro field note: named stills (PNG) and short
+ * Demo footage for the DR-5 Chainlink field note: named stills (PNG) and short
  * clips (WebM), rendered headless with puppeteer-core and the system Chrome
  * from the run logs in docs/field-note/runs/ and the built web page served
  * locally.
@@ -9,17 +9,17 @@
  *   node docs/field-note/shots.mjs              # stills and clips
  *   node docs/field-note/shots.mjs --stills     # PNGs only  -> docs/field-note/shots/
  *   node docs/field-note/shots.mjs --clips      # WebMs only -> docs/field-note/clips/
- *   node docs/field-note/shots.mjs --only=board,mark   # names containing "board" or "mark"
+ *   node docs/field-note/shots.mjs --only=board,verify   # names containing "board" or "verify"
  *
  * Run it from the repo root so `puppeteer-core` resolves from node_modules.
  * CHROME_PATH overrides the Chrome binary, SHOTS_BASE_URL the page (default
  * http://localhost:4173), SHOTS_THEME=dark renders the page in dark mode.
  * Clips shell out to ffmpeg (must be on PATH).
  *
- * 05-board, 06-mark and the page clips need fresh prices on the board: run
- * them while scripts/keeper.ts is pushing, or within max_age (120 s) of the
- * last push. Later the pills read "stale" and mark() returns error #1 Stale.
- * 08-keeper needs the finished keeper log (its "== Summary" section).
+ * The page stills need src/deployments.json to name the testnet contract: the
+ * board then fills its ten rows by simulation (the testnet RPC took 3 to 4 s
+ * per call on 10 November, so the waits are generous). 07-watch needs the
+ * finished watch log (its "== Summary" section) and says SKIP until then.
  */
 import puppeteer from 'puppeteer-core';
 import { spawnSync } from 'node:child_process';
@@ -33,7 +33,7 @@ const BASE = (process.env.SHOTS_BASE_URL ?? 'http://localhost:4173').replace(/\/
 const THEME = process.env.SHOTS_THEME === 'dark' ? 'dark' : 'light';
 const SHOTS_DIR = resolve(HERE, 'shots');
 const CLIPS_DIR = resolve(HERE, 'clips');
-const STILL_PREFIX = 'DR-4_pyth-field-note_';
+const STILL_PREFIX = 'DR-5_chainlink-field-note_';
 const W = 1920;
 const H = 1080;
 // The page is a 1024px column. CSS zoom 1.5 on <html> lays it out as if the
@@ -41,22 +41,25 @@ const H = 1080;
 // 1920x1080 frame. (An emulated deviceScaleFactor would do the same for
 // screenshots, but puppeteer's screencast ignores it and records 1280x720.)
 const PAGE_ZOOM = 1.5;
+// The ten-row board is taller than one frame at zoom 1.5. For the two board
+// stills the column is widened to this many CSS px (fewer wrapped lines per
+// row) and the zoom is picked so the whole card fits the frame.
+const WIDE_COLUMN = 1760;
 const NAV_TIMEOUT = 60_000;
-const TEXT_TIMEOUT = 60_000;
+const TEXT_TIMEOUT = 90_000;
+const ROWS_TIMEOUT = 150_000; // ten rows by simulation on the slow testnet RPC
 const MAX_LINES = 40; // log lines per terminal still
-const MARK_QTY = '2.5';
-const MARK_FEED_ID = 1; // BTC/USD
+const ASSET_COUNT = 10;
 
 const CARD = resolve(HERE, 'card/card.png');
 const RECON_LOG = resolve(HERE, 'runs/run0-recon.log');
 const DEPLOY_LOG = resolve(HERE, 'runs/run1-deploy.log');
-const PUSH_LOG = resolve(HERE, 'runs/run2-push.log');
-const KEEPER_LOG = resolve(HERE, 'runs/run3-keeper.log');
-const GOLD_LOG = resolve(HERE, 'runs/run4-keeper-gold-break.log');
-const TRIAL_LOG = resolve(HERE, 'runs/run5-keeper-after-pages.log');
+const REFRESH_LOG = resolve(HERE, 'runs/run2-refresh.log');
+const SUBMIT_LOG = resolve(HERE, 'runs/run3-submit-expired.log');
+const WATCH_LOG = resolve(HERE, 'runs/run4-watch.log');
 const DEPLOYMENTS = JSON.parse(readFileSync(resolve(HERE, '../../src/deployments.json'), 'utf8'));
-const PRICE_BOARD = DEPLOYMENTS.testnet?.priceBoard ?? 'CBRQGQDIALJKNXN4NY2C7UQ3KUUTZ6KCQCNJYYW3LAZ4QN45JXSEUN5I';
-const EXPLORER_URL = `https://stellar.expert/explorer/testnet/contract/${PRICE_BOARD}`;
+const TWO_CLOCKS = DEPLOYMENTS.testnet?.twoClocks ?? 'CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP';
+const EXPLORER_URL = `https://stellar.expert/explorer/testnet/contract/${TWO_CLOCKS}`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const readLines = (file) => readFileSync(file, 'utf8').replace(/\n$/, '').split('\n');
@@ -65,13 +68,14 @@ const clipPath = (name) => resolve(CLIPS_DIR, `${name}.webm`);
 const rel = (p) => relative(process.cwd(), p);
 
 // ---------------------------------------------------------------------------
-// Log slicing. Every line is "2026-10-15T12:53:03Z  message"; a section starts
+// Log slicing. Every line is "2026-11-10T14:02:56Z  message"; a section starts
 // with "== title" and the blank line before the next section belongs to it.
 
 const STAMP = /^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ)(?:  (.*))?$/;
 const isSectionHeader = (l) => /^\S+\s+== /.test(l);
 const message = (l) => { const m = STAMP.exec(l); return m ? (m[2] ?? '') : l; };
 const isBlank = (l) => !message(l).trim();
+const hasSection = (lines, title) => lines.some((l) => message(l).startsWith(`== ${title}`));
 
 function trimBlanks(lines) {
   const out = [...lines];
@@ -91,15 +95,6 @@ function sections(lines, titles, file) {
     out.push(...lines.slice(start, end));
   }
   return out;
-}
-
-/** Lines from the first match of `from` up to (not including) the first later match of `until`. */
-function between(lines, from, until, file) {
-  const start = lines.findIndex((l) => from.test(l));
-  if (start < 0) throw new Error(`${from} not found in ${rel(file)}`);
-  let end = lines.findIndex((l, i) => i > start && until.test(l));
-  if (end < 0) end = lines.length;
-  return lines.slice(start, end);
 }
 
 /** Cut a line longer than `max` characters and mark the cut. */
@@ -135,7 +130,7 @@ function terminalHtml(lines, { title = '', highlight = null } = {}) {
   body { box-sizing: border-box; min-height: ${H}px; padding: 28px 56px; color: #d7dde6;
          font: 20px/1.3 ui-monospace, "SF Mono", Menlo, Monaco, "Courier New", monospace; tab-size: 8; }
   .t { color: #7d8794; margin-bottom: 14px; }
-  .l { white-space: pre-wrap; word-break: break-all; }
+  .l { white-space: pre-wrap; overflow-wrap: anywhere; }
   .ts { color: #66758a; }
   .sec { color: #f2f6fa; font-weight: 600; }
   .hi { color: #ffd27f; background: #3a2708; margin: 0 -12px; padding: 0 12px; border-radius: 4px; }
@@ -186,13 +181,20 @@ async function zoomPage(page, zoom = PAGE_ZOOM) {
   }, zoom);
 }
 
-/** Navigate, zoom, wait for network idle, give the RPC simulations a moment, wait for idle again. Never throws. */
-async function open(page, url, { waitUntil = 'networkidle0', zoom = PAGE_ZOOM } = {}) {
+/** Widen the page column (the div under #root) to `px` CSS pixels. 0 restores the page's own width. */
+async function widenColumn(page, px) {
+  await page.evaluate((px) => {
+    const col = document.querySelector('#root > div');
+    if (col) col.style.maxWidth = px ? `${px}px` : '';
+  }, px);
+}
+
+/** Navigate and zoom. The callers wait for the text they need. Never throws. */
+async function open(page, url, { waitUntil = 'load', zoom = PAGE_ZOOM } = {}) {
   const notes = [];
   await page.goto(url, { waitUntil, timeout: NAV_TIMEOUT }).catch((e) => notes.push(`goto: ${e.message.split('\n')[0]}`));
   if (zoom !== 1) await zoomPage(page, zoom).catch(() => notes.push('zoom failed'));
-  await sleep(1500);
-  await page.waitForNetworkIdle({ idleTime: 1000, timeout: 30_000 }).catch(() => notes.push('network never idle'));
+  await sleep(500);
   return notes.join('; ');
 }
 
@@ -207,36 +209,47 @@ async function waitForText(page, re, timeout = TEXT_TIMEOUT) {
   return false;
 }
 
-/** The board table: how many rows exist, hold a price, and show the "fresh" pill. */
+/** Click the first <button> whose text is `text`. Throws when there is none. */
+async function clickButton(page, text) {
+  const handle = await page.evaluateHandle(
+    (text) => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === text) ?? null,
+    text,
+  );
+  const el = handle.asElement();
+  if (!el) throw new Error(`button "${text}" not found`);
+  await el.click();
+}
+
+/** The board rows: div grids inside the card titled "Board". A row is filled once its push leg shows the heartbeat countdown. */
 async function boardRows(page) {
   return page
     .evaluate(() => {
-      const rows = [...document.querySelectorAll('table tbody tr')].map((tr) => tr.innerText);
+      const card = [...document.querySelectorAll('section')].find((s) => s.querySelector('h2')?.textContent.trim() === 'Board');
+      const rows = card ? [...card.querySelectorAll('div.grid')].map((d) => d.innerText) : [];
       return {
         n: rows.length,
-        filled: rows.filter((t) => !t.includes('not stored yet')).length,
+        filled: rows.filter((t) => /next heartbeat in|heartbeat overdue/.test(t)).length,
         fresh: rows.filter((t) => /\bfresh\b/.test(t)).length,
       };
     })
     .catch(() => ({ n: 0, filled: 0, fresh: 0 }));
 }
 
-/** Wait until all four board rows hold a price. Returns the last count either way. */
-async function waitForRows(page, timeout = TEXT_TIMEOUT) {
+/** Wait until all ten board rows hold a price. Returns the last count either way. */
+async function waitForRows(page, timeout = ROWS_TIMEOUT) {
   const t0 = Date.now();
   let last = { n: 0, filled: 0, fresh: 0 };
   while (Date.now() - t0 < timeout) {
     last = await boardRows(page);
-    if (last.n === 4 && last.filled === 4) return last;
+    if (last.n === ASSET_COUNT && last.filled === ASSET_COUNT) return last;
     await sleep(500);
   }
   return last;
 }
 
-/** "" when the board is complete and fresh, else a WARN prefix for the shot note. */
+/** "" when every row holds a price, else a WARN prefix for the shot note. */
 function rowsWarning(rows) {
-  if (rows.filled < 4) return `WARN: ${rows.filled}/4 board rows filled; `;
-  if (rows.fresh < 4) return `WARN: only ${rows.fresh}/4 rows fresh (keeper stopped?); `;
+  if (rows.filled < ASSET_COUNT) return `WARN: ${rows.filled}/${ASSET_COUNT} board rows filled; `;
   return '';
 }
 
@@ -261,20 +274,55 @@ async function showSection(page, heading, margin = 20) {
   return true;
 }
 
-/** Fill the mark calculator (feed select, quantity) and submit. Returns true when a result (or error) showed. */
-async function runMark(page, feedId, qty, { typeDelay = 0 } = {}) {
-  await page.select('select', String(feedId));
-  const input = await page.$('input[inputmode="decimal"]');
-  if (!input) throw new Error('quantity input not found');
-  // A triple click does not select the default "100" in headless Chrome; select() does.
-  await input.evaluate((el) => { el.focus(); el.select(); });
-  await page.keyboard.press('Backspace');
-  await page.keyboard.type(qty, { delay: typeDelay });
-  const typed = await input.evaluate((el) => el.value);
-  if (typed !== qty) throw new Error(`quantity input reads "${typed}" after typing "${qty}"`);
-  await sleep(typeDelay ? 700 : 100);
-  await page.keyboard.press('Enter'); // submits the form, same as the "Value it" button
-  return waitForText(page, /Raw i128:|mark failed/, 30_000);
+/**
+ * Pick the largest zoom (at most `maxZoom`) at which the whole section fits
+ * one frame with `margin` above and below, then scroll it into view. The
+ * layout can change with the zoom (lines wrap), so measure again after each
+ * step. Returns the zoom, or null when the section is missing.
+ */
+async function fitSection(page, heading, { margin = 16, maxZoom = PAGE_ZOOM, minZoom = 0.8 } = {}) {
+  let zoom = maxZoom;
+  for (let i = 0; i < 4; i++) {
+    await zoomPage(page, zoom);
+    await sleep(150);
+    const r = await sectionRect(page, heading);
+    if (!r) return null;
+    const cssHeight = r.height / zoom;
+    const next = Math.min(maxZoom, Math.max(minZoom, Math.floor(((H - 2 * margin) / cssHeight) * 100) / 100));
+    if (Math.abs(next - zoom) < 0.005) break;
+    zoom = next;
+  }
+  await showSection(page, heading, margin);
+  return zoom;
+}
+
+/**
+ * Draw a warm ring around the elements matching `selector` whose text matches
+ * `re`: outside the box for small things like pills, inside it (`inset`) for
+ * notices that sit flush against their neighbours. Returns how many.
+ */
+async function outline(page, selector, re, { inset = false } = {}) {
+  return page.evaluate(
+    (selector, source, flags, inset) => {
+      const test = new RegExp(source, flags);
+      let n = 0;
+      for (const el of document.querySelectorAll(selector)) {
+        if (!test.test(el.textContent.trim())) continue;
+        if (inset) {
+          el.style.boxShadow = 'inset 0 0 0 3px #f59e0b';
+        } else {
+          el.style.outline = '3px solid #f59e0b';
+          el.style.outlineOffset = '3px';
+        }
+        n += 1;
+      }
+      return n;
+    },
+    selector,
+    re.source,
+    re.flags,
+    inset,
+  );
 }
 
 /** Linear scroll by `px` over `ms`, stepped at ~30 fps from inside the page. */
@@ -377,6 +425,21 @@ function logStill(name, file, title, pick, highlight) {
 
 const logTitle = (file, note) => `$ cat ${rel(file)}   # ${note}`;
 
+/** The two opening lines of the recon log (run id, "read-only") and a blank line. */
+const reconHead = (lines) => [...lines.slice(0, 2), ''];
+
+/** Open the page, wait for the ten testnet rows, click the verify box button `button` and wait for `result`. */
+async function runVerify(page, button, result) {
+  const nav = await open(page, `${BASE}/`);
+  const rows = await waitForRows(page);
+  await clickButton(page, button);
+  const shown = await waitForText(page, result);
+  return { nav, rows, shown };
+}
+
+const VERIFY_OK = /same fields as the browser decode|differs from the browser decode|failed with error/;
+const VERIFY_TAMPERED = /#12 \(BadVerification\)/;
+
 const stills = [
   {
     name: '00-card',
@@ -387,109 +450,128 @@ const stills = [
     },
   },
   logStill(
-    '01-recon',
+    '01-recon-feeds',
     RECON_LOG,
-    logTitle(RECON_LOG, 'trusted signers, the signed fixture replayed by simulation, one bit flipped'),
-    (lines) => [...lines.slice(0, 2), '', ...sections(lines, ['Trusted signers', 'Fixture', 'verify_update by simulation', 'Tampered bit'], RECON_LOG)],
-    /contract error #6/,
+    logTitle(RECON_LOG, 'the testnet Data Feeds proxy by simulation: one contract, ten feeds, 18 decimals, two error probes'),
+    (lines) => [...reconHead(lines), ...sections(lines, ['Data Feeds proxy testnet'], RECON_LOG)],
+    /contract error #5[01]|truncation xlm/,
   ),
   logStill(
-    '02-entitled',
+    '02-recon-verify',
     RECON_LOG,
-    logTitle(RECON_LOG, 'symbols: tracked feeds, not entitled on the free key, REST without a key (schedules cut)'),
-    (lines) => [
-      ...between(lines, /== Symbols/, /fixture feeds:/, RECON_LOG).map((l) => clipLine(l, 230)),
-      '',
-      ...sections(lines, ['REST without a key'], RECON_LOG),
-    ],
-    /HTTP 403/,
+    logTitle(RECON_LOG, 'the one public signed report: decoded, verified on testnet, one byte flipped, sent to mainnet'),
+    (lines) => [...reconHead(lines), ...sections(lines, ['Sample report', 'verify by simulation', 'Tampered byte', 'Mainnet verifier'], RECON_LOG)],
+    /contract error #12 |contract error #9 /,
   ),
   logStill(
-    '03-deploy',
+    '03-recon-api',
+    RECON_LOG,
+    logTitle(RECON_LOG, 'Data Streams REST with the account credentials (401 on both environments), then the Candlestick API'),
+    (lines) => [...reconHead(lines), ...sections(lines, ['Data Streams API', 'Candlestick'], RECON_LOG)],
+    /HTTP 401/,
+  ),
+  logStill(
+    '04-deploy',
     DEPLOY_LOG,
-    logTitle(DEPLOY_LOG, 'pnpm run deploy --network testnet: upload the wasm, create the contract, check config()'),
-    (lines) => lines,
+    logTitle(DEPLOY_LOG, 'pnpm run deploy --network testnet: the constructor args, the create transaction, config() and assets() read back'),
+    (lines) => sections(lines, ['Deploy two-clocks to testnet', 'Create contract', 'Check config() and assets() by simulation'], DEPLOY_LOG),
     /^\S+\s+contract C[A-Z2-7]{55}$/,
   ),
   logStill(
-    '04-push',
-    PUSH_LOG,
-    logTitle(PUSH_LOG, 'pnpm run push --network testnet: fetch a signed update, push it, read it back by simulation'),
+    '05-refresh',
+    REFRESH_LOG,
+    logTitle(REFRESH_LOG, 'pnpm refresh --network testnet: ten push legs stored in one transaction'),
+    (lines) => [...lines.slice(0, 2), '', ...sections(lines, ['refresh', 'Summary'], REFRESH_LOG)],
+    /stored 10 of 10/,
+  ),
+  logStill(
+    '06-submit-expired',
+    SUBMIT_LOG,
+    logTitle(SUBMIT_LOG, 'pnpm submit --network testnet --expect-expired: the verifier accepts the sample, the contract refuses it'),
     (lines) => lines,
-    /stored 4 feed\(s\)/,
+    /contract error #23/,
   ),
   {
-    name: '05-board',
-    file: stillPath('05-board'),
+    name: '07-watch',
+    file: stillPath('07-watch'),
+    async run(page) {
+      const all = readLines(WATCH_LOG);
+      if (!hasSection(all, 'Summary')) return 'SKIP: watch still running';
+      const lines = trimBlanks(headTail(all, 3));
+      const highlight = /^\S+\s+rounds \d+, stored \d+/;
+      const title = logTitle(WATCH_LOG, 'pnpm watch --network testnet --every 600 --minutes 120: one line per round, then the summary');
+      const px = await renderTerminal(page, lines, { title, highlight });
+      await page.screenshot({ path: this.file });
+      const hits = lines.filter((l) => highlight.test(l)).length;
+      return `${hits ? '' : 'WARN: highlight matched nothing; '}${lines.length} lines at ${px}px`;
+    },
+  },
+  {
+    name: '08-board',
+    file: stillPath('08-board'),
     async run(page) {
       const nav = await open(page, `${BASE}/`);
       const rows = await waitForRows(page);
-      await showSection(page, 'Board');
+      await widenColumn(page, WIDE_COLUMN);
+      const zoom = await fitSection(page, 'Board');
       await page.screenshot({ path: this.file });
-      return `${rowsWarning(rows)}${rows.fresh}/4 rows fresh ${nav}`.trim();
+      return `${rowsWarning(rows)}${rows.filled}/${ASSET_COUNT} rows, ${rows.fresh} fresh, zoom ${zoom} ${nav}`.trim();
     },
   },
   {
-    name: '06-mark',
-    file: stillPath('06-mark'),
+    name: '09-verify-sample',
+    file: stillPath('09-verify-sample'),
+    async run(page) {
+      const { nav, rows, shown } = await runVerify(page, 'Verify by simulation', VERIFY_OK);
+      const zoom = await fitSection(page, 'Verify a report');
+      const marked = (await outline(page, 'span', /^expired \d+ days ago$/)) + (await outline(page, 'p', /submit_report/, { inset: true }));
+      await page.screenshot({ path: this.file });
+      const failed = await page.evaluate(() => /failed with error/.test(document.body.innerText));
+      if (!shown) return `WARN: no verify result within ${TEXT_TIMEOUT / 1000} s ${nav}`.trim();
+      if (failed) return `WARN: verify_report returned an error ${nav}`.trim();
+      return `${rowsWarning(rows)}sample verified, ${marked} outlined, zoom ${zoom} ${nav}`.trim();
+    },
+  },
+  {
+    name: '10-verify-tampered',
+    file: stillPath('10-verify-tampered'),
+    async run(page) {
+      const { nav, rows, shown } = await runVerify(page, 'Flip byte 479 and verify', VERIFY_TAMPERED);
+      const zoom = await fitSection(page, 'Verify a report');
+      const marked = await outline(page, 'p', VERIFY_TAMPERED, { inset: true });
+      await page.screenshot({ path: this.file });
+      if (!shown) return `WARN: no #12 within ${TEXT_TIMEOUT / 1000} s ${nav}`.trim();
+      return `${rowsWarning(rows)}#12 BadVerification shown, ${marked} outlined, zoom ${zoom} ${nav}`.trim();
+    },
+  },
+  {
+    name: '11-mainnet-toggle',
+    file: stillPath('11-mainnet-toggle'),
     async run(page) {
       const nav = await open(page, `${BASE}/`);
+      const radio = await page.evaluateHandle(() => [...document.querySelectorAll('[role=radio]')].find((b) => b.textContent.trim() === 'Mainnet') ?? null);
+      const el = radio.asElement();
+      if (!el) throw new Error('Mainnet radio not found');
+      await el.click();
       const rows = await waitForRows(page);
-      const shown = await runMark(page, MARK_FEED_ID, MARK_QTY);
-      await showSection(page, 'Mark calculator');
+      const checked = await page.evaluate(() => [...document.querySelectorAll('[role=radio]')].find((b) => b.textContent.trim() === 'Mainnet')?.getAttribute('aria-checked') === 'true');
+      await widenColumn(page, WIDE_COLUMN);
+      const zoom = await fitSection(page, 'Board');
       await page.screenshot({ path: this.file });
-      const failed = await page.evaluate(() => /mark failed/.test(document.body.innerText));
-      if (!shown) return `WARN: no mark result within 30 s ${nav}`.trim();
-      if (failed) return `WARN: mark returned an error (stale board?) ${nav}`.trim();
-      return `${rowsWarning(rows)}${MARK_QTY} BTC/USD valued ${nav}`.trim();
+      return `${checked ? '' : 'WARN: Mainnet radio not checked; '}${rowsWarning(rows)}${rows.filled}/${ASSET_COUNT} proxy rows, zoom ${zoom} ${nav}`.trim();
     },
   },
   {
-    name: '07-how-it-works',
-    file: stillPath('07-how-it-works'),
-    async run(page) {
-      const nav = await open(page, `${BASE}/`);
-      const ok = await waitForText(page, /The verifier is stateless/, 30_000);
-      const found = await showSection(page, 'How it works');
-      await page.screenshot({ path: this.file });
-      return ok && found ? nav : `WARN: How it works section not found ${nav}`.trim();
-    },
-  },
-  logStill(
-    '08-keeper',
-    KEEPER_LOG,
-    logTitle(KEEPER_LOG, 'pnpm run keeper --network testnet --every 30 --minutes 10: one line per round, then the summary'),
-    (lines) => {
-      if (!lines.some((l) => message(l).startsWith('== Summary'))) throw new Error(`no "== Summary" in ${rel(KEEPER_LOG)} yet: the keeper is still running`);
-      return headTail(lines, 3);
-    },
-    /^\S+\s+rounds \d+, successes \d+/,
-  ),
-  logStill(
-    '10-gold-break',
-    GOLD_LOG,
-    logTitle(GOLD_LOG, 'pnpm run keeper --network testnet --every 60 --minutes 20 during the gold break (21:00 to 22:00 UTC): XAU/USD carried forward, skipped'),
-    (lines) => {
-      if (!lines.some((l) => message(l).startsWith('== Summary'))) throw new Error(`no "== Summary" in ${rel(GOLD_LOG)} yet: the keeper is still running`);
-      return headTail(lines, 3);
-    },
-    /stored 3|carried|skip|^\S+\s+rounds \d+, successes \d+/,
-  ),
-  logStill(
-    '11-trial-expired',
-    TRIAL_LOG,
-    logTitle(TRIAL_LOG, 'pnpm keeper --network testnet --every 60 --minutes 15 on 9 November, 25 days after the first call: the free trial is over'),
-    (lines) => lines,
-    /403 Not entitled|no feed left/,
-  ),
-  {
-    name: '09-explorer',
-    file: stillPath('09-explorer'),
+    name: '12-explorer',
+    file: stillPath('12-explorer'),
     async run(page) {
       const nav = await open(page, EXPLORER_URL, { waitUntil: 'load', zoom: 1 });
-      const ok = await waitForText(page, new RegExp(PRICE_BOARD), 20_000);
+      const ok = await waitForText(page, new RegExp(TWO_CLOCKS), 20_000);
       const wall = await page.evaluate(() => /Just a moment|Verify you are human|Checking your browser|Access denied|Attention Required/i.test(document.body.innerText));
       if (!ok || wall) return `SKIP: stellar.expert ${wall ? 'showed a bot wall' : 'did not render the contract page'} for headless Chrome ${nav}`.trim();
+      // The history list loads after the summary; give it a moment.
+      await page.waitForNetworkIdle({ idleTime: 1500, timeout: 20_000 }).catch(() => undefined);
+      await sleep(2000);
       await page.screenshot({ path: this.file });
       return `contract page rendered ${nav}`.trim();
     },
@@ -501,44 +583,53 @@ const clips = [
     name: 'clip-a-board',
     file: clipPath('clip-a-board'),
     async run(page) {
-      // Recording starts before navigation, so the clip shows the page load and the rows filling in.
-      let rows = { n: 0, filled: 0, fresh: 0 };
-      const took = await record(page, this.file, async () => {
-        const t0 = Date.now();
-        await page.goto(`${BASE}/`, { waitUntil: 'load', timeout: NAV_TIMEOUT });
-        await zoomPage(page);
-        await startHeartbeat(page);
-        rows = await waitForRows(page, 20_000);
-        // Hold while the ages tick and one 10 s refresh goes by.
-        await sleep(Math.max(3000, 13_000 - (Date.now() - t0)));
-      });
-      return `${rowsWarning(rows)}${took}`;
-    },
-  },
-  {
-    name: 'clip-b-mark',
-    file: clipPath('clip-b-mark'),
-    async run(page) {
+      // Load first: the ten rows take a while on the testnet RPC. The clip is the scroll over the filled board.
       await open(page, `${BASE}/`);
       const rows = await waitForRows(page);
-      await showSection(page, 'Mark calculator');
-      let shown = false;
+      const r = await sectionRect(page, 'Board');
+      if (!r) throw new Error('Board section not found');
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await sleep(300);
+      const room = await scrollRoom(page);
+      const distance = Math.min(room, Math.max(300, r.bottom + 40 - H));
       const took = await record(page, this.file, async () => {
-        const t0 = Date.now();
-        await sleep(1200);
-        shown = await runMark(page, MARK_FEED_ID, MARK_QTY, { typeDelay: 220 });
-        await sleep(Math.max(3000, 10_000 - (Date.now() - t0)));
+        await sleep(1500);
+        await slowScroll(page, distance, 9000);
+        await sleep(2000);
       });
-      return `${rowsWarning(rows)}${shown ? '' : 'WARN: no mark result; '}${took}`;
+      return `${rowsWarning(rows)}scrolled ${Math.round(distance)}px, ${took}`;
     },
   },
   {
-    name: 'clip-c-push',
-    file: clipPath('clip-c-push'),
+    name: 'clip-b-verify',
+    file: clipPath('clip-b-verify'),
     async run(page) {
-      const lines = trimBlanks(readLines(PUSH_LOG));
-      const highlight = /stored 4 feed\(s\)/;
-      const title = logTitle(PUSH_LOG, 'pnpm run push --network testnet');
+      // Zoom 1.4: the card grows by one notice once a result shows and still fits the frame.
+      await open(page, `${BASE}/`, { zoom: 1.4 });
+      const rows = await waitForRows(page);
+      await showSection(page, 'Verify a report');
+      let ok = false;
+      let tampered = false;
+      const took = await record(page, this.file, async () => {
+        await sleep(1200);
+        await clickButton(page, 'Verify by simulation');
+        ok = await waitForText(page, VERIFY_OK);
+        await sleep(3000);
+        await clickButton(page, 'Flip byte 479 and verify');
+        tampered = await waitForText(page, VERIFY_TAMPERED);
+        await sleep(3000);
+      });
+      const warn = `${ok ? '' : 'WARN: no verify result; '}${tampered ? '' : 'WARN: no #12; '}`;
+      return `${warn}${rowsWarning(rows)}${took}`;
+    },
+  },
+  {
+    name: 'clip-c-refresh',
+    file: clipPath('clip-c-refresh'),
+    async run(page) {
+      const lines = trimBlanks(readLines(REFRESH_LOG));
+      const highlight = /stored 10 of 10/;
+      const title = logTitle(REFRESH_LOG, 'pnpm refresh --network testnet');
       // Lay out the full log once to pick the font size, then clear it and type it back line by line.
       const px = await renderTerminal(page, lines, { title, highlight });
       await page.evaluate(() => {
@@ -566,7 +657,9 @@ const clips = [
     file: clipPath('clip-d-how'),
     async run(page) {
       await open(page, `${BASE}/`);
-      const ok = await waitForText(page, /The verifier is stateless/, 30_000);
+      // The board above grows by ten rows once the simulations answer; measure after that, not before.
+      const rows = await waitForRows(page);
+      const ok = await waitForText(page, /Two clocks\./, 30_000);
       const r = await sectionRect(page, 'How it works');
       if (!r) throw new Error('How it works section not found');
       const viewportH = await page.evaluate(() => window.innerHeight);
@@ -581,7 +674,7 @@ const clips = [
         await slowScroll(page, distance, 8000);
         await sleep(1200);
       });
-      return `${ok ? '' : 'WARN: section text not shown; '}scrolled ${Math.round(distance)}px, ${took}`;
+      return `${ok ? '' : 'WARN: section text not shown; '}${rowsWarning(rows)}scrolled ${Math.round(distance)}px, ${took}`;
     },
   },
 ];
@@ -620,11 +713,11 @@ try {
       tally[status.trim().toLowerCase()] += 1;
       const size = existsSync(shot.file) ? `${(statSync(shot.file).size / 1024).toFixed(0)} KB` : '-';
       const secs = `${((Date.now() - t0) / 1000).toFixed(1)}s`;
-      console.log(`${status}  ${shot.name.padEnd(16)} ${rel(shot.file).padEnd(58)} ${size.padStart(8)} ${secs.padStart(7)}  ${note}`);
+      console.log(`${status}  ${shot.name.padEnd(18)} ${rel(shot.file).padEnd(64)} ${size.padStart(8)} ${secs.padStart(7)}  ${note}`);
     } catch (e) {
       tally.fail += 1;
       const msg = (e instanceof Error ? e.message : String(e)).split('\n')[0];
-      console.log(`FAIL  ${shot.name.padEnd(16)} ${msg}`);
+      console.log(`FAIL  ${shot.name.padEnd(18)} ${msg}`);
     } finally {
       if (page) await page.close().catch(() => undefined);
     }

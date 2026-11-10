@@ -32,7 +32,7 @@ function signingString(network: NetworkName): string {
     'Authorization: <username>',
     'X-Authorization-Timestamp: <unix ms>',
     'X-Authorization-Signature-SHA256: hex(HMAC-SHA256(<secret>, the line above))',
-    'User-Agent: Mozilla/5.0 (a browser-like value, or Cloudflare answers 403)',
+    'User-Agent: Mozilla/5.0 (send a browser-like value; on 9 November Cloudflare refused a bare client)',
   ].join('\n');
 }
 

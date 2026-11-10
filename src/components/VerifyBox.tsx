@@ -202,7 +202,7 @@ function Failure({ outcome, network }: { outcome: Extract<Outcome, { kind: 'erro
         : null;
   return (
     <Notice tone="bad">
-      {outcome.message}
+      {/\.$/.test(outcome.message) ? outcome.message : `${outcome.message}.`}
       {outcome.detail ? ` ${outcome.detail}` : ''}
       {expected ? ` ${expected}` : ''}
     </Notice>

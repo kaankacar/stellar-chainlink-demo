@@ -3,3 +3,5 @@
 2026-11-10T14:10:51Z    https://stellar.expert/explorer/testnet/contract/CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP
 2026-11-10T14:10:51Z  baseline: oldest push flhy age 23 h 40 min (heartbeat in 18 min 38 s)
 2026-11-10T14:11:16Z  round 1  stored 1  xaum -10.2 bps (round 4289, age 1 min 09 s of 23 h 59 min)  tx dcc19cf6...  ledger 5659245  fee 0.0034798 XLM  latency 16.3 s
+2026-11-10T14:21:00Z  round 2  skip  contract error #21 NothingNew: no round or report is newer than what the contract holds. Nothing was stored and no fee was charged. [HostError: Error(Contract, #21)]  oldest push flhy age 23 h 50 min (heartbeat in 8 min 29 s)
+2026-11-10T14:31:15Z  round 3  stored 2  xaum -0.3 bps (round 4293, age 54 s of 23 h 59 min), flhy -4.2 bps (round 52, age 54 s of 23 h 59 min)  tx 6b0530b7...  ledger 5659485  fee 0.0050449 XLM  latency 16.2 s
