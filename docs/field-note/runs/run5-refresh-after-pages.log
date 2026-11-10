@@ -1,0 +1,32 @@
+2026-11-10T17:21:15Z  testnet: two-clocks CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP, signer GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC (STELLAR_SECRET), assets xlm,btc,eth,link,usdt,usdc,eurc,xaum,flhy,uspc
+2026-11-10T17:21:26Z  config: proxy CBUF6IADAWPWIDWRTHJNINKXHG2UTIQ6TU2F2HRAXWAI7OT3KJPKK6O4, max_push_age_s 90000, max_pull_age_s 120
+2026-11-10T17:21:26Z
+2026-11-10T17:21:26Z  == refresh (10 ids in one transaction)
+2026-11-10T17:21:54Z  stored 5 of 10: tx 5e3516d125ff5048ec7ea2c54ca14148d2caa6d2005f136f9f15b3f2fd9549d9, ledger 5661534, fee 100646 stroops (0.0100646 XLM), latency call to ledger close 26.3 s
+2026-11-10T17:21:54Z    https://stellar.expert/explorer/testnet/tx/5e3516d125ff5048ec7ea2c54ca14148d2caa6d2005f136f9f15b3f2fd9549d9
+2026-11-10T17:21:54Z
+2026-11-10T17:21:54Z  == latest_many by simulation
+2026-11-10T17:22:02Z  xlm  push: price 0.142480 USD, round 2384, feed 2026-11-10T17:18:59Z, age 3 min 03 s, heartbeat in 23 h 56 min, fresh
+2026-11-10T17:22:02Z       pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  btc  push: price 73,063.443000 USD, round 613, feed 2026-11-10T16:44:29Z, age 37 min 33 s, heartbeat in 23 h 21 min, fresh
+2026-11-10T17:22:02Z       pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  eth  push: price 2,018.944660 USD, round 1076, feed 2026-11-10T16:32:14Z, age 49 min 48 s, heartbeat in 23 h 09 min, fresh
+2026-11-10T17:22:02Z       pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  link  push: price 10.181242 USD, round 2500, feed 2026-11-10T17:14:29Z, age 7 min 33 s, heartbeat in 23 h 51 min, fresh
+2026-11-10T17:22:02Z        pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  usdt  push: price 0.998820 USD, round 55, feed 2026-11-09T20:32:29Z, age 20 h 49 min, heartbeat in 3 h 09 min, fresh
+2026-11-10T17:22:02Z        pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  usdc  push: price 0.999746 USD, round 55, feed 2026-11-09T20:32:29Z, age 20 h 49 min, heartbeat in 3 h 09 min, fresh
+2026-11-10T17:22:02Z        pull: no accepted report yet (the only public sample expired 2026-05-03)
+2026-11-10T17:22:02Z  eurc  push: price 1.116459 USD, round 64, feed 2026-11-10T15:49:14Z, age 1 h 32 min, heartbeat in 22 h 26 min, fresh
+2026-11-10T17:22:02Z        pull: no stream on this network
+2026-11-10T17:22:02Z  xaum  push: price 4,040.250000 USD, round 4321, feed 2026-11-10T16:59:44Z, age 22 min 18 s, heartbeat in 23 h 36 min, fresh
+2026-11-10T17:22:02Z        pull: no stream on this network
+2026-11-10T17:22:02Z  flhy  push: price 23.465000 USD, round 52, feed 2026-11-10T14:30:14Z, age 2 h 51 min, heartbeat in 21 h 07 min, fresh
+2026-11-10T17:22:02Z        pull: no stream on this network
+2026-11-10T17:22:02Z  uspc  push: price 1.034951 USD, round 20, feed 2026-11-09T17:34:44Z, age 23 h 47 min, heartbeat in 11 min 57 s, fresh
+2026-11-10T17:22:02Z        pull: no stream on this network
+2026-11-10T17:22:02Z    https://stellar.expert/explorer/testnet/contract/CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP
+2026-11-10T17:22:02Z
+2026-11-10T17:22:02Z  == Summary
+2026-11-10T17:22:02Z  stored 5 push leg(s), total fee 0.0100646 XLM
