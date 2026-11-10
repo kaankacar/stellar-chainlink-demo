@@ -1,0 +1,19 @@
+2026-11-10T14:09:57Z
+2026-11-10T14:09:57Z  == Local decode
+2026-11-10T14:09:57Z  source /Users/kaankacar/chainlinkfn/contracts/two-clocks/fixtures/streams-eth-usd-testnet-sample.hex: 736 bytes, reportData 288 bytes at offset 256, 2 signatures
+2026-11-10T14:09:57Z  stream 0x000359843a543ee2fe414dc14c7e7920ef10f4372990b79d6361cdc0dd1ba782 (ETH / USD), schema v3
+2026-11-10T14:09:57Z  validFrom 2026-04-03T12:55:38Z, observations 2026-04-03T12:55:38Z, expiresAt 2026-05-03T12:55:38Z
+2026-11-10T14:09:57Z  price 2,050.205901 bid 2,050.188807 ask 2,050.293175
+2026-11-10T14:09:57Z  expired 191 d 1 h ago (191 days): the contract will answer #23 Expired
+2026-11-10T14:09:57Z  testnet: two-clocks CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP, signer GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC (STELLAR_SECRET)
+2026-11-10T14:10:08Z  config: verifier CA7GVHWH4GRHE6GI7MHEKQZAOYO4GE7KRGSU3EOS3HYJRVLX3XEA4ONQ, max_pull_age_s 120
+2026-11-10T14:10:08Z
+2026-11-10T14:10:08Z  == verify_report by simulation
+2026-11-10T14:10:19Z  verified in 10.9 s: price 2,050.205901 bid 2,050.188807 ask 2,050.293175, observations 2026-04-03T12:55:38Z, expiresAt 2026-05-03T12:55:38Z, same as the local decode: yes
+2026-11-10T14:10:19Z  the verifier checked f+1 signatures and returned the report data. Nothing was stored.
+2026-11-10T14:10:19Z
+2026-11-10T14:10:19Z  == submit_report
+2026-11-10T14:10:28Z  contract error #23 Expired: the report expiresAt is at or before ledger time. [HostError: Error(Contract, #23)]
+2026-11-10T14:10:28Z  report expiresAt 2026-05-03T12:55:38Z, now 2026-11-10T14:10:28Z: expired 191 d 1 h ago
+2026-11-10T14:10:28Z  rejected at the simulate stage: nothing was sent and no fee was charged
+2026-11-10T14:10:28Z  as expected (--expect-expired)

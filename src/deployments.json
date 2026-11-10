@@ -1,1 +1,24 @@
-{}
+{
+  "testnet": {
+    "twoClocks": "CDJTBGMNA4T2Q4IALTUQVNSUTFHISVQIDKMKNKW26AYJIM5QWFQ3I4FP",
+    "proxy": "CBUF6IADAWPWIDWRTHJNINKXHG2UTIQ6TU2F2HRAXWAI7OT3KJPKK6O4",
+    "verifier": "CA7GVHWH4GRHE6GI7MHEKQZAOYO4GE7KRGSU3EOS3HYJRVLX3XEA4ONQ",
+    "maxPushAgeS": 90000,
+    "maxPullAgeS": 120,
+    "assets": [
+      "xlm",
+      "btc",
+      "eth",
+      "link",
+      "usdt",
+      "usdc",
+      "eurc",
+      "xaum",
+      "flhy",
+      "uspc"
+    ],
+    "deployedAt": "2026-11-10T14:09:28Z",
+    "deployTx": "900117a9ebe7918f6974ba802c517bb809dd1224d59f14411de1f5fa4760ee43",
+    "reader": "GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC"
+  }
+}
