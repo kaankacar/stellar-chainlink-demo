@@ -1,0 +1,125 @@
+2026-11-10T14:02:56Z  Run 0: recon, started 2026-11-10T14:02:56Z, node v24.15.0, networks testnet and mainnet
+2026-11-10T14:02:56Z  Read-only. No signing, no fees: every contract call below is a simulation.
+2026-11-10T14:02:56Z
+2026-11-10T14:02:56Z  == Stellar RPC
+2026-11-10T14:03:03Z  testnet: https://soroban-testnet.stellar.org latest ledger 5659148 closed 2026-11-10T14:03:03Z, protocol 30, passphrase matches: yes
+2026-11-10T14:03:04Z  mainnet: https://mainnet.sorobanrpc.com latest ledger 65406668 closed 2026-11-10T14:03:02Z, protocol 29, passphrase matches: yes
+2026-11-10T14:03:04Z  -- ok (7.7 s)
+2026-11-10T14:03:04Z
+2026-11-10T14:03:04Z  == Simulation sources
+2026-11-10T14:03:16Z  testnet: GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC (the known reader), sequence 24302793271541760, read-only, never signs
+2026-11-10T14:03:16Z  mainnet: GBTKQ2WYNYE5TJW3N5LH7PGGERX2EIBDIIN7X6LFHMVQQZCZT36KA3PC (the known reader), sequence 274418603141365772, read-only, never signs
+2026-11-10T14:03:16Z  -- ok (12.4 s)
+2026-11-10T14:03:16Z
+2026-11-10T14:03:16Z  == Data Feeds proxy testnet (CBUF6IADAWPWIDWRTHJNINKXHG2UTIQ6TU2F2HRAXWAI7OT3KJPKK6O4)
+2026-11-10T14:03:30Z  version 1, type_and_version "DataFeedsProxy 1.0.0"
+2026-11-10T14:03:35Z  xlm   "XLM/USD", decimals 18, min 8
+2026-11-10T14:03:35Z        latest_round(18): 0.143892 USD (raw 143892467512330300), round 2365, feed 2026-11-10T13:55:59Z, age 7 min 36 s, heartbeat 86355 s: within heartbeat
+2026-11-10T14:03:40Z  btc   "BTC/USD", decimals 18, min 8
+2026-11-10T14:03:40Z        latest_round(18): 73,861.330000 USD (raw 73861330000000000000000), round 605, feed 2026-11-10T13:30:14Z, age 33 min 26 s, heartbeat 86355 s: within heartbeat
+2026-11-10T14:03:46Z  eth   "ETH/USD", decimals 18, min 8
+2026-11-10T14:03:46Z        latest_round(18): 2,065.847676 USD (raw 2065847676932637500000), round 1064, feed 2026-11-10T13:35:59Z, age 27 min 47 s, heartbeat 86355 s: within heartbeat
+2026-11-10T14:03:53Z  link  "LINK/USD", decimals 18, min 8
+2026-11-10T14:03:53Z        latest_round(18): 10.379500 USD (raw 10379500659657120000), round 2477, feed 2026-11-10T13:53:14Z, age 10 min 39 s, heartbeat 86355 s: within heartbeat
+2026-11-10T14:03:58Z  usdt  "USDT/USD", decimals 18, min 8
+2026-11-10T14:03:58Z        latest_round(18): 0.998820 USD (raw 998820000000000000), round 55, feed 2026-11-09T20:32:29Z, age 17 h 31 min, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:03Z  usdc  "USDC/USD", decimals 18, min 8
+2026-11-10T14:04:03Z        latest_round(18): 0.999746 USD (raw 999746140000000000), round 55, feed 2026-11-09T20:32:29Z, age 17 h 31 min, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:08Z  eurc  "EURC/USD", decimals 18, min 8
+2026-11-10T14:04:08Z        latest_round(18): 1.122138 USD (raw 1122138388977907500), round 62, feed 2026-11-10T10:11:59Z, age 3 h 52 min, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:12Z  xaum  "XAUM Reference Rate", decimals 18, min 18
+2026-11-10T14:04:12Z        latest_round(18): 4,076.894000 USD (raw 4076894000000000000000), round 4288, feed 2026-11-10T14:00:44Z, age 3 min 28 s, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:18Z  flhy  "FLHY/USD", decimals 18, min 8
+2026-11-10T14:04:18Z        latest_round(18): 23.475000 USD (raw 23475000000000000000), round 51, feed 2026-11-09T14:30:14Z, age 23 h 34 min, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:25Z  uspc  "USPC NAV", decimals 18, min 18
+2026-11-10T14:04:25Z        latest_round(18): 1.034951 USD (raw 1034951411975089600), round 20, feed 2026-11-09T17:34:44Z, age 20 h 29 min, heartbeat 86355 s: within heartbeat
+2026-11-10T14:04:25Z  probe unknown id ffffffffff...: contract error #50 NoDataPresent: no round for this data id: unknown id, feed not written yet, or round expired. [HostError: Error(Contract, #50)]
+2026-11-10T14:04:30Z  probe xlm decimals 0: contract error #51 InvalidDecimals: decimals outside the range the feed serves (18 stored, min 8 today, 0 is refused). [HostError: Error(Contract, #51)]
+2026-11-10T14:04:30Z  truncation xlm: answer 143892467512330300 at 18 decimals, 14389246 at 8 decimals (round 2365), equals answer / 10^10: yes
+2026-11-10T14:04:30Z  -- ok (1 min 13 s)
+2026-11-10T14:04:30Z
+2026-11-10T14:04:30Z  == Data Feeds proxy mainnet (CDQBHEUGLDHMSUHG4IH33RJBUTMNCZOT4JIAQR4WZFRDZW6DR6S32ZLZ)
+2026-11-10T14:04:30Z  version 1, type_and_version "DataFeedsProxy 1.0.0"
+2026-11-10T14:04:31Z  xlm   "XLM/USD", decimals 18, min 8
+2026-11-10T14:04:31Z        latest_round(18): 0.144367 USD (raw 144367303223813900), round 2451, feed 2026-11-10T13:31:30Z, age 33 min 01 s, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:32Z  btc   "BTC/USD", decimals 18, min 8
+2026-11-10T14:04:32Z        latest_round(18): 73,672.150466 USD (raw 73672150466013480000000), round 745, feed 2026-11-10T13:41:44Z, age 22 min 48 s, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:32Z  eth   "ETH/USD", decimals 18, min 8
+2026-11-10T14:04:32Z        latest_round(18): 2,065.986577 USD (raw 2065986577207381800000), round 1209, feed 2026-11-10T13:35:59Z, age 28 min 33 s, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:33Z  link  "LINK/USD", decimals 18, min 8
+2026-11-10T14:04:33Z        latest_round(18): 10.397600 USD (raw 10397600000000000000), round 2644, feed 2026-11-10T13:50:14Z, age 14 min 19 s, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:33Z  usdt  "USDT/USD", decimals 18, min 8
+2026-11-10T14:04:33Z        latest_round(18): 0.998912 USD (raw 998912379982772500), round 61, feed 2026-11-09T17:59:29Z, age 20 h 05 min, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:34Z  usdc  "USDC/USD", decimals 18, min 8
+2026-11-10T14:04:34Z        latest_round(18): 0.999739 USD (raw 999739242760891700), round 61, feed 2026-11-09T17:59:29Z, age 20 h 05 min, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:34Z  eurc  "EURC/USD", decimals 18, min 8
+2026-11-10T14:04:34Z        latest_round(18): 1.122104 USD (raw 1122104650886299700), round 59, feed 2026-11-10T10:12:44Z, age 3 h 51 min, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:35Z  xaum  "XAUM Reference Rate", decimals 18, min 18
+2026-11-10T14:04:35Z        latest_round(18): 4,076.894000 USD (raw 4076894000000000000000), round 4567, feed 2026-11-10T14:00:44Z, age 3 min 51 s, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:36Z  flhy  "FLHY/USD", decimals 18, min 8
+2026-11-10T14:04:36Z        latest_round(18): 23.475000 USD (raw 23475000000000000000), round 47, feed 2026-11-09T14:30:14Z, age 23 h 34 min, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:36Z  uspc  "USPC NAV", decimals 18, min 18
+2026-11-10T14:04:36Z        latest_round(18): 1.034951 USD (raw 1034951411975089600), round 19, feed 2026-11-09T17:06:44Z, age 20 h 57 min, heartbeat 86400 s: within heartbeat
+2026-11-10T14:04:36Z  probe unknown id ffffffffff...: contract error #50 NoDataPresent: no round for this data id: unknown id, feed not written yet, or round expired. [HostError: Error(Contract, #50)]
+2026-11-10T14:04:36Z  probe xlm decimals 0: contract error #51 InvalidDecimals: decimals outside the range the feed serves (18 stored, min 8 today, 0 is refused). [HostError: Error(Contract, #51)]
+2026-11-10T14:04:37Z  truncation xlm: answer 144367303223813900 at 18 decimals, 14436730 at 8 decimals (round 2451), equals answer / 10^10: yes
+2026-11-10T14:04:37Z  -- ok (6.5 s)
+2026-11-10T14:04:37Z
+2026-11-10T14:04:37Z  == Verifier
+2026-11-10T14:04:37Z  testnet verifier CA7GVHWH4GRHE6GI7MHEKQZAOYO4GE7KRGSU3EOS3HYJRVLX3XEA4ONQ: is_initialized true
+2026-11-10T14:04:38Z  mainnet verifier CAKA3NBYPC6OBEUEGNIYGNYG3ES2GPQK736B5SR7ASGUXRDAKXI2JCQI: is_initialized true
+2026-11-10T14:04:38Z  -- ok (901 ms)
+2026-11-10T14:04:38Z
+2026-11-10T14:04:38Z  == Sample report
+2026-11-10T14:04:38Z  source /Users/kaankacar/chainlinkfn/contracts/two-clocks/fixtures/streams-eth-usd-testnet-sample.hex
+2026-11-10T14:04:38Z  736 bytes: reportData 288 bytes at offset 256 (length word at 224), 2 signatures (rs 2, ss 2, f = 1), rawVs 01010000...
+2026-11-10T14:04:38Z  config digest 0x00090d9e8d96765a0c49e03a6ae05c82e8f8de70cf179baa632f18313e54bd69
+2026-11-10T14:04:38Z  stream 0x000359843a543ee2fe414dc14c7e7920ef10f4372990b79d6361cdc0dd1ba782 (ETH / USD on testnet), schema v3
+2026-11-10T14:04:38Z  validFrom 1775220938 (2026-04-03T12:55:38Z), observations 1775220938 (2026-04-03T12:55:38Z), expiresAt 1777812938 (2026-05-03T12:55:38Z)
+2026-11-10T14:04:38Z  price 2,050.205901 bid 2,050.188807 ask 2,050.293175 (18 decimals), nativeFee 156082805440149, linkFee 36841303540646141 (legacy fields)
+2026-11-10T14:04:38Z  expired 191 days ago (as of 2026-11-10T14:04:38Z): submit_report would answer #23 Expired
+2026-11-10T14:04:38Z  -- ok (1 ms)
+2026-11-10T14:04:38Z
+2026-11-10T14:04:38Z  == verify by simulation (testnet verifier)
+2026-11-10T14:04:38Z  verify(sample, GARGB3SHPUXQEFUNLCD67QLP4ABG4WVYM2KB3UURWA53ADAP7U6TEICC) returned 288 bytes in 540 ms, identical to the local reportData: yes
+2026-11-10T14:04:38Z  decoded: price 2,050.205901 bid 2,050.188807 ask 2,050.293175, observations 2026-04-03T12:55:38Z, expiresAt 2026-05-03T12:55:38Z
+2026-11-10T14:04:38Z  a report signed on 2026-04-03T12:55:38Z verifies today: the verifier checks f+1 signatures against the DON config and nothing else. Freshness and expiry are the consumer's job.
+2026-11-10T14:04:38Z  -- ok (541 ms)
+2026-11-10T14:04:38Z
+2026-11-10T14:04:38Z  == Tampered byte (479, expect #12 BadVerification)
+2026-11-10T14:04:38Z  flipped bit 0 of byte 479: price now reads 2,050.205901 (raw 2050205901383697350001), bid and ask unchanged: yes
+2026-11-10T14:04:39Z  testnet: contract error #12 BadVerification: a recovered signer is not in the config. Any change to the report bytes gives this. [HostError: Error(Contract, #12)]
+2026-11-10T14:04:39Z  -- ok (498 ms)
+2026-11-10T14:04:39Z
+2026-11-10T14:04:39Z  == Mainnet verifier (expect #9 DigestNotSet)
+2026-11-10T14:04:39Z  mainnet verifier CAKA3NBYPC6OBEUEGNIYGNYG3ES2GPQK736B5SR7ASGUXRDAKXI2JCQI: contract error #9 DigestNotSet: no DON config with this digest on this verifier. A report signed for another network or chain gives this. [HostError: Error(Contract, #9)]
+2026-11-10T14:04:39Z  the config digest in reportContext[0] is registered on the testnet verifier only. The same bytes are not portable across networks.
+2026-11-10T14:04:39Z  -- ok (156 ms)
+2026-11-10T14:04:39Z
+2026-11-10T14:04:39Z  == Data Streams API
+2026-11-10T14:04:39Z  credentials: username present (36 characters, not logged), secret present
+2026-11-10T14:04:39Z  testnet GET https://api.testnet-dataengine.chain.link/api/v1/discovery with User-Agent: HTTP 200 in 626 ms (187 streams)
+2026-11-10T14:04:40Z  testnet the same with an empty User-Agent: HTTP 200, body: {"feeds":[{"assetClass":"Equities","assetName":"Tesla Inc","... (90548 chars)
+2026-11-10T14:04:40Z  mainnet GET https://api.dataengine.chain.link/api/v1/discovery with User-Agent: HTTP 200 in 355 ms (181 streams)
+2026-11-10T14:04:41Z  mainnet the same with an empty User-Agent: HTTP 200, body: {"feeds":[{"assetClass":"Crypto","assetName":"WSTUSR / STUSR... (87035 chars)
+2026-11-10T14:04:41Z  testnet GET /api/v1/feeds: HTTP 401 Unauthorized in 220 ms, body: {"error":"user does not exist"}
+2026-11-10T14:04:41Z  mainnet GET /api/v1/feeds: HTTP 200 OK in 260 ms, body: {"feeds":[]} [x-ratelimit-limit: 200, x-ratelimit-remaining: 199, x-ratelimit-reset: 1794319481]
+2026-11-10T14:04:41Z  testnet GET /api/v1/reports/latest?feedID=0x00037dfe3b... (XLM / USD): HTTP 401 Unauthorized in 223 ms, body: {"error":"user does not exist"}
+2026-11-10T14:04:42Z  testnet GET /api/v1/reports/latest?feedID=0x000359843a... (ETH / USD): HTTP 401 Unauthorized in 321 ms, body: {"error":"user does not exist"}
+2026-11-10T14:04:42Z  mainnet GET /api/v1/reports/latest?feedID=0x000358cb12... (XLM / USD): HTTP 401 Unauthorized in 222 ms, body: {"error":"feeds not authorized"}
+2026-11-10T14:04:42Z  mainnet GET /api/v1/reports/latest?feedID=0x000362205e... (ETH / USD): HTTP 401 Unauthorized in 534 ms, body: {"error":"feeds not authorized"}
+2026-11-10T14:04:42Z  -- ok (3.6 s)
+2026-11-10T14:04:42Z
+2026-11-10T14:04:42Z  == Candlestick
+2026-11-10T14:04:44Z  mainnet POST https://priceapi.dataengine.chain.link/api/v1/authorize: HTTP 200 in 1220 ms, token received (not logged), expiration 2026-11-11T14:04:44Z (in 24 h 00 min)
+2026-11-10T14:04:44Z  mainnet GET /api/v1/symbol_info?group=crypto: HTTP 200, 132 symbols, XLMUSD present, ETHUSD present
+2026-11-10T14:04:45Z  mainnet GET /api/v1/history/rows?symbol=ETHUSD&resolution=1h (last 6 h): HTTP 200 in 759 ms, 7 candles, body 736 chars
+2026-11-10T14:04:45Z    2026-11-10T14:00:00Z close literal 2.067006223745e+21 = 2,067.006223 USD exact; JSON.parse gives 2.067006223745e+21
+2026-11-10T14:04:45Z    2026-11-10T13:00:00Z close literal 2.063291500230808e+21 = 2,063.291500 USD exact; JSON.parse gives 2.063291500230808e+21
+2026-11-10T14:04:45Z    2026-11-10T12:00:00Z close literal 2.096829851997333e+21 = 2,096.829851 USD exact; JSON.parse gives 2.096829851997333e+21
+2026-11-10T14:04:46Z  testnet POST https://priceapi.testnet-dataengine.chain.link/api/v1/authorize: HTTP 404, token absent, body: {"s":"error","errmsg":"Not found - user not found for id [username]"}
+2026-11-10T14:04:46Z  -- ok (3.8 s)
+2026-11-10T14:04:46Z
+2026-11-10T14:04:46Z  == Summary
+2026-11-10T14:04:46Z  11/11 sections ok in 1 min 50 s
+2026-11-10T14:04:46Z  nothing was signed or sent

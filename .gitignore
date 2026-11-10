@@ -1,0 +1,11 @@
+node_modules/
+dist/
+target/
+.env
+*.log
+!docs/field-note/runs/*.log
+docs/field-note/clips/
+docs/field-note/handin/
+docs/field-note/card/card@2x.png
+.DS_Store
+.scratch/

@@ -1,0 +1,31 @@
+name: Contract
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts/two-clocks
+    steps:
+      - uses: actions/checkout@v4
+      # Same rustc and CLI as the testnet deploy, so the wasm hash matches.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.95.0
+          targets: wasm32v1-none
+      - uses: stellar/stellar-cli@v26.0.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contracts/two-clocks
+      - run: cargo test --locked
+      # Only `stellar contract build` makes the deployable bytes. It adds the
+      # contract meta (rsver, rssdkver, cliver) that plain cargo leaves out.
+      - run: stellar contract build --locked
+      - run: ls -l target/wasm32v1-none/release/two_clocks.wasm
+      - run: shasum -a 256 target/wasm32v1-none/release/two_clocks.wasm
+      - run: stellar contract info meta --wasm target/wasm32v1-none/release/two_clocks.wasm
