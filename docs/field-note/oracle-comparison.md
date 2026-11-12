@@ -4,7 +4,7 @@ The two field notes read Pyth Pro and Chainlink Data Feeds from a Soroban contra
 
 | | Chainlink Data Feeds | Reflector (public Pulse oracles) | Pyth Pro |
 |---|---|---|---|
-| Model | Push. Chainlink's network writes the price into one proxy contract. | Push. Reflector's nodes write every price every 5 minutes. | Pull. You fetch a signed update off-chain and bring it on chain; Pyth's verifier checks the signatures. |
+| Model | Push. Chainlink's network writes the price into one proxy contract. | Push. Reflector's nodes write a new price every 5 minutes on the public Pulse oracles (`resolution` 300 s); the paid Beam oracles update faster. | Pull. You fetch a signed update off-chain and bring it on chain; Pyth's verifier checks the signatures. |
 | Where the price lives | One proxy per network, every feed behind it, picked by a 32-byte `data_id`. | One contract per data source: external CEXs and DEXs, the Stellar DEX, and FX rates. Pick by asset symbol or Stellar asset. | Nowhere until your transaction brings it. The verifier holds only the trusted signer. |
 | Interface | `latest_round(data_id, decimals)`, `get_round`, `description`. Not SEP-40. | SEP-40: `lastprice(asset)`, `price(asset, ts)`, `prices(asset, n)`, `resolution`, `decimals`, `assets`, `last_timestamp`. | `verify_update(bytes)` returns the payload; you decode the feeds yourself. |
 | Decimals | 18 for every feed. Fewer truncates; two feeds refuse anything below 18. | 14 for every asset in a contract. | Per feed exponent: -8 for crypto, -5 for FX, -3 for gold. |
