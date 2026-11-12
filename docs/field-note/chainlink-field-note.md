@@ -91,3 +91,5 @@ pnpm refresh -- --network testnet                   # ten feeds in one transacti
 - Chainlink's [Data Feeds on Stellar](https://docs.chain.link/data-feeds/stellar) and [feed list](https://docs.chain.link/data-feeds/price-feeds/addresses?network=stellar).
 - Stellar's [oracle providers page](https://developers.stellar.org/docs/data/oracles/oracle-providers) and the [Two Ways post](https://stellar.org/blog/developers/ways-to-read-chainlink-prices-on-stellar-data-feeds-and-data-streams).
 - Bring questions to the next Stellar Developers Meeting.
+
+**Appendix.** [Pyth Pro, Chainlink Data Feeds and Reflector, side by side](https://github.com/kaankacar/stellar-chainlink-demo/blob/main/docs/field-note/oracle-comparison.md): the three oracles on Stellar read at the same moment, with the freshness rule each one needs.

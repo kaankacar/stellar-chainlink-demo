@@ -1,0 +1,30 @@
+2026-11-12T14:51:39Z  Run 6: Reflector, Chainlink and Pyth side by side, read-only by simulation
+2026-11-12T14:51:40Z  == Reflector mainnet, External CEXs & DEXs (CAFJZQWSED6YAWZU3GWRTOCNPPCGBN32L7QV43XX5LZLFTK6JLN34DLN)
+2026-11-12T14:51:44Z  version: 7
+2026-11-12T14:51:45Z  base: {"Other":"USD"}
+2026-11-12T14:51:47Z  decimals: 14
+2026-11-12T14:51:48Z  resolution: 300
+2026-11-12T14:51:49Z  last_timestamp: 1794495000
+2026-11-12T14:51:51Z  history_retention_period: 86400
+2026-11-12T14:51:52Z  assets: 16 assets, e.g. ['BTC', 'ETH', 'USDT', 'XRP', 'SOL', 'USDC', 'ADA', 'AVAX']
+2026-11-12T14:51:53Z  lastprice XLM: {"price":"14369237626177","timestamp":1794495000}
+2026-11-12T14:51:55Z  lastprice BTC: {"price":"7168996823437630243","timestamp":1794495000}
+2026-11-12T14:51:55Z  == Reflector mainnet, Stellar DEX (CALI2BYU2JE6WVRUFYTS6MSBNEHGJ35P4AVCZYF3B6QOE3QKOB2PLE6M)
+2026-11-12T14:51:56Z  version: 7
+2026-11-12T14:51:58Z  base: {"Stellar":"CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75"}
+2026-11-12T14:52:01Z  decimals: 14
+2026-11-12T14:52:02Z  resolution: 300
+2026-11-12T14:52:03Z  last_timestamp: 1794495000
+2026-11-12T14:52:03Z  == Reflector testnet, External CEXs & DEXs (CCYOZJCOPG34LLQQ7N24YXBM7LL62R7ONMZ3G6WZAAYPB5OYKOMJRN63)
+2026-11-12T14:52:05Z  version: 7
+2026-11-12T14:52:07Z  base: {"Other":"USD"}
+2026-11-12T14:52:08Z  decimals: 14
+2026-11-12T14:52:10Z  resolution: 300
+2026-11-12T14:52:13Z  last_timestamp: 1794495000
+2026-11-12T14:52:14Z  lastprice XLM: {"price":"14368577068521","timestamp":1794495000}
+2026-11-12T14:52:14Z  == Chainlink Data Feeds proxy, XLM/USD at the same time
+2026-11-12T14:52:16Z  mainnet latest_round: {"answer":"143783435837402900","round_id":2557,"timestamp":1794494160}
+2026-11-12T14:52:17Z  testnet latest_round: {"answer":"143838285096627300","round_id":2464,"timestamp":1794494130}
+2026-11-12T14:52:17Z  == Pyth Pro verifier: no price on chain, a consumer brings a signed update (see Field Note No. 02)
+2026-11-12T14:52:20Z  mainnet CACZ3GBAKUPIAFRILUFO27J5RUH5GJ2VSJ46LP6GJYSKGDRTQ5MS3HCH list_trusted_signers: [["03a4380f01136eb2640f90c17e1e319e02bbafbeef2e6e67dc48af53f9827e155b",9999999999]]
+2026-11-12T14:52:20Z  == done, nothing was signed or sent

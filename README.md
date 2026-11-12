@@ -113,4 +113,4 @@ Not affiliated with Chainlink Labs or SmartContract Chainlink Limited. The sampl
 
 ## Field note
 
-This repo is the demo behind Field Note No. 03, "Chainlink on Stellar". The write-up, the friction logs, the run logs, the card and the stills live in [docs/field-note](docs/field-note).
+This repo is the demo behind Field Note No. 03, "Chainlink on Stellar". The write-up, the friction logs, the run logs, the card and the stills live in [docs/field-note](docs/field-note). [oracle-comparison.md](docs/field-note/oracle-comparison.md) puts Pyth Pro, Chainlink Data Feeds and Reflector side by side.
