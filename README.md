@@ -2,7 +2,9 @@
 
 Chainlink gives Stellar contracts two ways to read a price. **Data Feeds** push a reference price into one proxy contract whenever it moves 0.5 percent or 24 hours pass. **Data Streams** let you pull a signed report off-chain and have Chainlink's verifier contract check the signatures on-chain. This repo keeps both on one board: a Soroban contract, **Two Clocks**, stores the push price and the pull price of each asset with their timestamps, computes the spread, and tells you which one is fresh enough to use.
 
-Testnet only. Mainnet is read by simulation, nothing is signed there. The Pages site is at `https://kaankacar.github.io/stellar-chainlink-demo/` and is published by the workflow on every push to `main`.
+Testnet only. Mainnet is read by simulation, nothing is signed there.
+
+The field note is about Data Feeds. The pull leg exists in the contract and on the page, but Data Streams has no free tier, so the note only shows what the verifier does with Chainlink's one public sample report, which is expired. The Pages site is at `https://kaankacar.github.io/stellar-chainlink-demo/` and is published by the workflow on every push to `main`.
 
 ## The three verbs
 
